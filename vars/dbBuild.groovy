@@ -1,9 +1,9 @@
 def call(body){
 
     def config = [:]
-    // body.resolveStrategy = Closure.DELEGATE_FIRST   //Its telling the closure (body) to look at the delegate first to find properties 
-    // body.delegate = config                          //assign the config map as delegate for the body object
-    // body()                                          //variables are scoped to the config map
+    body.resolveStrategy = Closure.DELEGATE_FIRST   //Its telling the closure (body) to look at the delegate first to find properties 
+    body.delegate = config                          //assign the config map as delegate for the body object
+    body()                                          //variables are scoped to the config map
     
     def branch = "${env.BRANCH_NAME}"
     def doBuild = true
@@ -61,9 +61,20 @@ def call(body){
             }
 
             if(doBuild){
-                def dockerfilename = config.dockerfile.trim()
-                println "DockerFileName: $dockerfilename"
-                println "BranchName: $branch"
+                def ecrTagName = config.ecrTagName.trim()
+                println "Registry name $registryName"
+
+                //call versioning and work on next maven version
+                stage("Get Version Details"){
+                    def versionArray = versioning(ecrTagName, config.targetPom, branch)
+                    
+                    originalversion = versionArray[0]
+                    releaseVersion = versionArray[1]
+                    newPomVersion = versionArray[2]
+                    imageTag = versionArray[3]
+
+                    println "FROM STAGE: $originalversion $releaseVersion $newPomVersion $imageTag"
+                }
             }
         }
     }
