@@ -1,9 +1,9 @@
 def call(body){
 
     def config = [:]
-    body.resolveStrategy = Closure.DELEGATE_FIRST   //Its telling the closure (body) to look at the delegate first to find properties 
-    body.delegate = config                          //assign the config map as delegate for the body object
-    body()                                          //variables are scoped to the config map
+    // body.resolveStrategy = Closure.DELEGATE_FIRST   //Its telling the closure (body) to look at the delegate first to find properties 
+    // body.delegate = config                          //assign the config map as delegate for the body object
+    // body()                                          //variables are scoped to the config map
     
     def branch = "${env.BRANCH_NAME}"
     def doBuild = true
