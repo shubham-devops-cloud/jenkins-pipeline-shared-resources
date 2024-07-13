@@ -7,6 +7,7 @@ def call(body){
     
     def branch = "${env.BRANCH_NAME}"
     def doBuild = true
+    //def originalversion, releaseVersion, newPomVersion, imageTag
     def registryName = 'public.ecr.aws/j9k0i2s2/dev-or-employee-system'
 
     node("worker_docker_slave"){
@@ -75,7 +76,7 @@ def call(body){
                 }
 
                 stage("Versioning - updating to new release"){
-                    def pomFile = readMavenPom file: config.targetPom
+                    def pomFile = config.targetPom
                     println "$pomFile"
                     println "$originalversion"    
 
