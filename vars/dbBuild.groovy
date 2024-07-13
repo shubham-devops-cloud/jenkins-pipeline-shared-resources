@@ -76,8 +76,11 @@ def call(body){
                 }
 
                 stage("Versioning - updating to new release"){
-                    sh "pwd"
-                    sh "cat pom.xml"
+                    sh """
+                        pwd
+                        ls -la
+                        cat pom.xml
+                    """
 
                 }
             }
