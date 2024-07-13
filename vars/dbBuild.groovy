@@ -78,7 +78,20 @@ def call(body){
                 stage("Build Docker Image"){
                     sh "id"
                     sh "docker build -t ${imageTag} --file=${config.dockerFile} ."
-                    sh "docker images"
+                }
+
+                stage("Publish docker image"){
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS', secretKeyVariable:'AWS_SECRET_ACCESS_KEY')]) {
+                        def AWS_DEFAULT_REGION = "us-west-2"
+                        sh """
+                            aws --version
+                            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/j9k0i2s2
+                            docker push ${imageTag}
+                            docker images
+                            docker rmi ${imageTag}
+                            docker images
+                        """
+                    }
                 }
 
                 stage("Versioning - updating to new release"){
