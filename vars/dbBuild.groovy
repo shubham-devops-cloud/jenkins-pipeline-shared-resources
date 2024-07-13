@@ -76,9 +76,8 @@ def call(body){
                 }
 
                 stage("Versioning - updating to new release"){
-                    def pomFile = readMavenPom file: config.targetPom
+                    def pomFile = readFile(config.targetPom)
                     sh "cat $pomFile"
-                    sh "cat config.targetPom"
 
                 }
             }
