@@ -80,6 +80,8 @@ def call(body){
                         pwd
                         ls -la
                         cat pom.xml
+                        sed -i '/<version>$originalversion /c <version>$newPomVersion</version>' qwe                    
+                        cat pom.xml    
                     """
 
                 }
