@@ -21,7 +21,7 @@ def call(body){
                 )
             ),
             disableConcurrentBuilds(),
-            timestamps ()
+            timestamps {}
         ])
 
         stage("Checkout scm"){
