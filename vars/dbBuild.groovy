@@ -76,8 +76,8 @@ def call(body){
                 }
 
                 stage("Versioning - updating to new release"){
-                    def pomFile = readFile(config.targetPom)
-                    sh "cat $pomFile"
+                    sh "pwd"
+                    sh "cat pom.xml"
 
                 }
             }
