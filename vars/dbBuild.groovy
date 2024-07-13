@@ -75,13 +75,14 @@ def call(body){
                     imageTag = versionArray[3]
                 }
 
+                stage("Build Docker Image"){
+                    sh "id"
+                    sh "docker build -t ${imageTag} --file=${config.dockerFile} ."
+                }
+
                 stage("Versioning - updating to new release"){
                     sh """
-                        pwd
-                        ls -la
-                        cat pom.xml
-                        sed -i 's/$originalversion/$newPomVersion/g' pom.xml                    
-                        cat pom.xml    
+                        sed -i 's/$originalversion/$newPomVersion/g' pom.xml                     
                     """
 
                 }
