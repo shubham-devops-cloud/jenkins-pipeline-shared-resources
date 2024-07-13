@@ -20,7 +20,8 @@ def call(body){
                     numToKeepStr: "5"
                 )
             ),
-            disableConcurrentBuilds()
+            disableConcurrentBuilds(),
+            timestamps ()
         ])
 
         stage("Checkout scm"){
