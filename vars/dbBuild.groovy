@@ -76,6 +76,8 @@ def call(body){
                 }
 
                 stage("Build Docker Image"){
+                    def filedocker = config.dockerFile.trim()
+                    println "DOCKEFILE: $filedocker"
                     sh "id"
                     sh "docker build -t ${imageTag} --file=${config.dockerFile} ."
                 }
