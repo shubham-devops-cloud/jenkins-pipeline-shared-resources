@@ -62,7 +62,7 @@ def call(body){
 
             if(doBuild){
                 def ecrTagName = config.ecrTagName.trim()
-                println "Registry name $registryName"
+                println "Registry name: $registryName"
 
                 //call versioning and work on next maven version
                 stage("Get Version Details"){
@@ -72,8 +72,13 @@ def call(body){
                     releaseVersion = versionArray[1]
                     newPomVersion = versionArray[2]
                     imageTag = versionArray[3]
+                }
 
-                    println "FROM STAGE: $originalversion $releaseVersion $newPomVersion $imageTag"
+                stage("Versioning - updating to new release"){
+                    def pomFile = readMavenPom file: config.targetPom
+                    println "$pomFile"
+                    println "$originalversion"    
+
                 }
             }
         }

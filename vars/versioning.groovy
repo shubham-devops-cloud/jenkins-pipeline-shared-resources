@@ -1,6 +1,5 @@
-void call(String ecrTagName, String targetPom, String branch, Boolean includeBranchName = true){
+void call(String ecrTagName, String targetPom, String branch){
     def registryPath = "public.ecr.aws/j9k0i2s2/dev-or-employee-system"
-    def newVersion
     def pom = readMavenPom file: targetPom
     def originalversion = pom.version
     
