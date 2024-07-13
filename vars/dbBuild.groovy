@@ -19,7 +19,8 @@ def call(body){
                     //daysToKeepStr: "",
                     numToKeepStr: "5"
                 )
-            )
+            ),
+            disableConcurrentBuilds()
         ])
 
         stage("Checkout scm"){
