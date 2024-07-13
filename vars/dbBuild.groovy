@@ -20,90 +20,91 @@ def call(body){
                     numToKeepStr: "5"
                 )
             ),
-            disableConcurrentBuilds(),
-            timestamps {}
+            disableConcurrentBuilds()
         ])
 
-        stage("Checkout scm"){
-            //checkout scm
-            checkout([
-                $class: 'GitSCM',
-                branches: scm.branches,
-                extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true, timeout: 15]],
-                userRemoteConfigs: scm.userRemoteConfigs
-            ])
-            sh "git checkout ${branch}"	
-        }
-
-        //This stage is to stop rebuild of compenents if nothing has changes in the repo
-        stage("Check last commit (if the build stops here there are no changes)"){
-            def USER = sh(script: 'git log -1 --format=%an', returnStdout: true).trim()
-
-            if(USER == "jenkins-docker"){
-                echo """####################################################### 
-                            | No code change, the last change was to the version
-                            | The build has been skipped to avoid the infinite loop
-                            | The last user to commit was ${USER}
-                            | #######################################################""".stripMargin()
-                
-                try{
-                    timeout(time: 60, unit: 'SECONDS'){
-                        doBuild = input(
-                            id: 'Proceed1', 
-                            message: 'Tick the box to container build', 
-                            parameters: [
-                                [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'continue to build']
-                            ]
-                        )
-                    }
-                }
-                catch(err){
-                    doBuild = false
-                    echo "timeout occured, build is not continuing"
-                }
+        timestamps {
+            stage("Checkout scm"){
+                //checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true, timeout: 15]],
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
+                sh "git checkout ${branch}"	
             }
 
-            if(doBuild){
-                def ecrTagName = config.ecrTagName.trim()
-                println "Registry name: $registryName"
+            //This stage is to stop rebuild of compenents if nothing has changes in the repo
+            stage("Check last commit (if the build stops here there are no changes)"){
+                def USER = sh(script: 'git log -1 --format=%an', returnStdout: true).trim()
 
-                //call versioning and work on next maven version
-                stage("Get Version Details"){
-                    def versionArray = versioning(ecrTagName, config.targetPom, branch)
+                if(USER == "jenkins-docker"){
+                    echo """####################################################### 
+                                | No code change, the last change was to the version
+                                | The build has been skipped to avoid the infinite loop
+                                | The last user to commit was ${USER}
+                                | #######################################################""".stripMargin()
                     
-                    originalversion = versionArray[0]
-                    releaseVersion = versionArray[1]
-                    newPomVersion = versionArray[2]
-                    imageTag = versionArray[3]
-                }
-
-                stage("Build Docker Image"){
-                    sh "id"
-                    sh "docker build -t ${imageTag} --file=${config.dockerFile} ."
-                }
-
-                stage("Publish docker image"){
-                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS', secretKeyVariable:'AWS_SECRET_ACCESS_KEY')]) {
-                        def AWS_DEFAULT_REGION = "us-west-2"
-                        sh """
-                            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/j9k0i2s2
-                            docker push ${imageTag}
-                            docker rmi ${imageTag}
-                        """
+                    try{
+                        timeout(time: 60, unit: 'SECONDS'){
+                            doBuild = input(
+                                id: 'Proceed1', 
+                                message: 'Tick the box to container build', 
+                                parameters: [
+                                    [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'continue to build']
+                                ]
+                            )
+                        }
+                    }
+                    catch(err){
+                        doBuild = false
+                        echo "timeout occured, build is not continuing"
                     }
                 }
 
-                stage("Versioning - updating to new release"){
-                    sh """
-                        sed -i 's/$originalversion/$newPomVersion/g' pom.xml                     
-                    """
-                }
+                if(doBuild){
+                    def ecrTagName = config.ecrTagName.trim()
+                    println "Registry name: $registryName"
 
-                stage("Update repo"){
-                    sshagent(['GitHubSSH']){
-                        sh "git config --global user.email \"jenkins-docker@gmail.com\" && git config --global user.name \"jenkins-docker\" && \
-                            git commit -am '[JENKINS] Built version ${releaseVersion}' && git push"
-                    }    
+                    //call versioning and work on next maven version
+                    stage("Get Version Details"){
+                        def versionArray = versioning(ecrTagName, config.targetPom, branch)
+                        
+                        originalversion = versionArray[0]
+                        releaseVersion = versionArray[1]
+                        newPomVersion = versionArray[2]
+                        imageTag = versionArray[3]
+                    }
+
+                    stage("Build Docker Image"){
+                        sh "id"
+                        sh "docker build -t ${imageTag} --file=${config.dockerFile} ."
+                    }
+
+                    stage("Publish docker image"){
+                        withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS', secretKeyVariable:'AWS_SECRET_ACCESS_KEY')]) {
+                            def AWS_DEFAULT_REGION = "us-west-2"
+                            sh """
+                                aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/j9k0i2s2
+                                docker push ${imageTag}
+                                docker rmi ${imageTag}
+                            """
+                        }
+                    }
+
+                    stage("Versioning - updating to new release"){
+                        sh """
+                            sed -i 's/$originalversion/$newPomVersion/g' pom.xml                     
+                        """
+                    }
+
+                    stage("Update repo"){
+                        sshagent(['GitHubSSH']){
+                            sh "git config --global user.email \"jenkins-docker@gmail.com\" && git config --global user.name \"jenkins-docker\" && \
+                                git commit -am '[JENKINS] Built version ${releaseVersion}' && git push"
+                        }    
+                    }
                 }
             }
         }
