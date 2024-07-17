@@ -75,7 +75,11 @@ def call(body){
                         releaseVersion = versionArray[1]
                         newPomVersion = versionArray[2]
                         imageTag = versionArray[3]
-                    }  
+                    } 
+
+                     stage("SONAR : This will trigger next 4 stages"){
+                        sonarProps = sonarRunner(config.targetPom)
+                    } 
                 }
             }
         }

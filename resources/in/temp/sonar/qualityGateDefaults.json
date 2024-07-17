@@ -1,0 +1,20 @@
+{
+    "qualityGates": [
+        {
+            "qualityGateName": "Sonar way",
+            "components": {
+                "servicename": [ 
+                    "default" 
+                ]
+            }
+        },
+        {
+            "qualityGateName": "Attendance Quality Gate - Employee System",
+            "components": {
+                "servicename": [ 
+                    "attendance" 
+                ]
+            }
+        }
+    ]
+}
