@@ -49,7 +49,7 @@ void call(String targetPom){
 
                     //Check is project exists
                     try{
-                        url = new URL (sonarExtURL + "/web_api/api/projects/search?projects=${sonarKey}")
+                        url = new URL (sonarExtURL + "/api/projects/search?projects=${sonarKey}")
                         sh "curl -u ${sonarCred}: ${url} -o liveProjects.json"
                         sh "cat liveProjects.json"
 
@@ -60,7 +60,7 @@ void call(String targetPom){
                             //The project doesn't exist....Create new one
                             try{
                                 println "Sonar project doesn't exist so creating new project in Sonarqube"
-                                url = new URL (sonarExtURL + "/web_api/api/projects/create")
+                                url = new URL (sonarExtURL + "/api/projects/create")
                                 sh "curl -u ${sonarCred}: -d \"project=${sonarKey}&name=${sonarProjectName}\" ${url}"
                                 newProject = true
                             }
@@ -82,7 +82,7 @@ void call(String targetPom){
                     else{
                         println "Assigning the qualityGate " + sonarQualityGateName + " to the sonar Project"
                         try{
-                            url = new URL (sonarExtURL + "/web_api/api/qualitygates/select")
+                            url = new URL (sonarExtURL + "/api/qualitygates/select")
                             sh "curl -u ${sonarCred}: -d \"projectKey=${sonarKey}&gateName=${sonarQualityGateName}\" ${url}"
                         }
                         catch(e){
