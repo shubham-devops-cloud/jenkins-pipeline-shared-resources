@@ -3,7 +3,7 @@ import org.common.SonarQubeDetails
 
 void call(String targetPom){
     def sonarKey, sonarProps, sonarResult, sonarProjectName
-    def sonarExtURL = "http://192.168.0.112:9000/"
+    def sonarExtURL = "http://192.168.0.112:9000"
 
     node("worker_docker_slave"){
         stage("Sonar: Checkout"){
@@ -49,7 +49,7 @@ void call(String targetPom){
 
                     //Check is project exists
                     try{
-                        url = new URL (sonarExtURL + "/api/projects/search?projects=${sonarKey}")
+                        url = new URL (sonarExtURL + "/web_api/api/projects/search?projects=${sonarKey}")
                         sh "curl -u ${sonarCred}: ${url} -o liveProjects.json"
                         sh "cat liveProjects.json"
 
@@ -59,7 +59,8 @@ void call(String targetPom){
                         if (liveProjectsJson.paging.total == 0){
                             //The project doesn't exist....Create new one
                             try{
-                                url = new URL (sonarExtURL + "/api/projects/create")
+                                println "Sonar project doesn't exist so creating new project in Sonarqube"
+                                url = new URL (sonarExtURL + "/web_api/api/projects/create")
                                 sh "curl -u ${sonarCred}: -d \"project=${sonarKey}&name=${sonarProjectName}\" ${url}"
                                 newProject = true
                             }
