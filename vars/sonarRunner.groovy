@@ -44,8 +44,51 @@ void call(String targetPom){
                     def sonarQualityGateName = sonarQubeDetails.getProjectGate(artifactId)
                     def defaultQualityGateName = sonarQubeDetails.getProjectGate("default")
 
-                    println "QualityGateName: $sonarQualityGateName"
-                    println "Default QualityGateName: $sonarQualityGateName"
+                    def url
+                    Boolean newProject = false
+
+                    //Check is project exists
+                    try{
+                        url = new URL (sonarExtURL + "/api/projects/search?projects=${sonarKey}")
+                        sh "curl -u ${sonarCred}: ${url} -o liveProjects.json"
+                        sh "cat liveProjects.json"
+
+                        def liveProjectsJson = readJSON file: "liveProjects.json"
+
+                        //Does the response from sonarqube contain a project
+                        if (liveProjectsJson.paging.total == 0){
+                            //The project doesn't exist....Create new one
+                            try{
+                                url = new URL (sonarExtURL + "/api/projects/create")
+                                sh "curl -u ${sonarCred}: -d \"project=${sonarKey}&name=${sonarProjectName}\" ${url}"
+                                newProject = true
+                            }
+                            catch(e){
+                                println "Was unable to setup sonarProject it may already exist"
+                                println e
+                            }
+                        }
+                    }
+                    catch(e){
+                        println "Something went wrong while checking the sonarProject"
+                        println e
+                    }
+
+
+                    if(!newProject){
+                        println "The sonar project already exist"
+                    }
+                    else{
+                        println "Assigning the qualityGate " + sonarQualityGateName + " to the sonar Project"
+                        try{
+                            url = new URL (sonarExtURL + "/web_api/api/qualitygates/select")
+                            sh "curl -u ${sonarCred}: -d \"projectKey=${sonarKey}&gateName=${sonarQualityGateName}\" ${url}"
+                        }
+                        catch(e){
+                            println "Was unable to assign the quality gate to the project"
+                            println e
+                        }
+                    
                 }
 
             }

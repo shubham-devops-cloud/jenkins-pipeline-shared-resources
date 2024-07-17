@@ -22,7 +22,7 @@ def getQualityGateFromSource(artifactId){
     qualityGateDefaultList.qualityGates.each { itx ->
         itx.components.servicename.each { itEnforced ->
             if ( itEnforced == artifactId ){
-                println "Found a quality gate for ${artifactId}. Gate is = " + itx.qualityGateName
+                println "Found a quality gate for ${artifactId}. Gate name is = " + itx.qualityGateName
                 finalGate = itx.qualityGateName
             }
         }
