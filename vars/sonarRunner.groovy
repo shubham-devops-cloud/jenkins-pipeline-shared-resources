@@ -99,5 +99,8 @@ void call(String targetPom){
                 sh "sonar-scanner -Dsonar.projectKey=${sonarKey} -Dsonar.sources=. "
             }
         }
+        catch(Exception e){
+            echo "Error: ${e}"
+        }
     }
 }
