@@ -6,6 +6,8 @@ void call(String targetPom){
     def sonarExtURL = "http://192.168.0.112:9000"
 
     node("worker_docker_slave"){
+        def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+
         stage("Sonar: Checkout"){
             checkout scm
         }
@@ -96,7 +98,7 @@ void call(String targetPom){
 
         try{
             withSonarQubeEnv('SonarQube'){
-                sh "sonar-scanner -Dsonar.projectKey=${sonarKey} -Dsonar.sources=. "
+                sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${sonarKey} -Dsonar.sources=. "
             }
         }
         catch(Exception e){
