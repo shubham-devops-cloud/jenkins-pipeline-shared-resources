@@ -98,7 +98,7 @@ void call(String targetPom){
 
         try{
             withSonarQubeEnv('SonarQube'){
-                sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${sonarKey} -Dsonar.sources=. "
+                sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=\"${sonarProjectName}\" -B"
             }
         }
         catch(Exception e){
