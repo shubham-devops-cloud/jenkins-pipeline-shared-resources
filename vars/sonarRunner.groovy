@@ -88,9 +88,8 @@ void call(String targetPom){
                             println "Was unable to assign the quality gate to the project"
                             println e
                         }
-                    
+                    }
                 }
-
             }
         }
     }
