@@ -32,7 +32,7 @@ void call(String targetPom){
             }
 
             if(doSetup){
-                withCredentials([string(credentialsId: 'Sonarqube-Token', variable: 'sonarCred')]) {
+                withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'sonarCred')]) {
                     def pom = readMavenPom file: targetPom
                     def artifactId = pom.artifactId
                     def groupId = pom.groupId 
