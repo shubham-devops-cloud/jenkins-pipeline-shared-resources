@@ -93,5 +93,11 @@ void call(String targetPom){
                 }
             }
         }
+
+        try{
+            withSonarQubeEnv('SonarQube'){
+                sh "sonar-scanner -Dsonar.projectKey=${sonarKey} -Dsonar.sources=. "
+            }
+        }
     }
 }
