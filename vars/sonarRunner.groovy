@@ -100,7 +100,6 @@ void call(String targetPom){
             stage("Sonar: Analysis"){
                 withSonarQubeEnv('SonarQube'){
                     sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
-                    sh "sleep 100000"
                 }
             }
 
