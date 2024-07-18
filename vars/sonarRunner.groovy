@@ -106,12 +106,61 @@ void call(String targetPom){
 
             stage("Sonar: Results"){
                 //Get the report task written by sonar with taskID
-                def props = readProperties file: 'target/sonar/report-task.txt'
-                sh "cat target/sonar/report-task.txt"
+                def props = readProperties file: '.scannerwork/report-task.txt'
+                sh "cat .scannerwork/report-task.txt"
+                def sonarServerUrl = props['serverUrl']
+                def ceTaskUrl = props['ceTaskUrl']
+                def ceTask
+
+                withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'sonarCred')]) {
+                    //Get analysisId from sonar
+                    def url = new URL(ceTaskUrl)
+                    echo "waiting for analysis to complete...."
+                    def analysisId
+                    def attemptCounter = 0
+
+                    while(analysisId == null && attemptCounter < 30){
+                        sleep 5
+                        sh "curl -u ${sonarCred}: ${url} -o ceTask.json"
+                        def ceProps = readJSON file: "ceTask.json"
+                        sh "cat ceTask.json"
+                        analysisId = ceProps['task']['analysisId']
+                        attemptCounter++
+                    }
+                    echo "ID: $analysisId"
+
+
+                    //Get analsis result from Sonar
+                    url = new URL(sonarServerUrl + "/api/qualitygates/project_status?analysisId=" + analysisId)
+                    sh "curl -u ${sonarCred}: ${url} -o qualityGate.json"
+                    def qgProps = readJSON file: "qualityGate.json"
+                    def qualitygate = qgProps['projectStatus']['status']
+
+                    if(qualitygate == "OK" || qualitygate == "WARN"){
+                        echo "Quality Gate passed..... login to ${sonarExtURL}"
+                        println(new JsonBuilder(qgProps).toPrettyString())
+                        sonarResult = "passed"
+                        sonarProps = qgProps
+                    }
+                    else{
+                        echo "Quality Gate failed..... login to ${sonarExtURL}"
+                        println(new JsonBuilder(qgProps).toPrettyString())
+                        sonarResult = "failure"
+                        sonarProps = qgProps
+                    }
+                }
             }
         }
         catch(Exception e){
             echo "Error: ${e}"
+            echo "SONAR checks are failed: the quality gate will not of been tested"
+            sonarResult = "aborted"
+            qgProps = [:];
+            sonarProps = qgProps
+        }
+        finally{
+            sonarProps.sonarResult = sonarResult
+            return sonarProps
         }
     }
 }

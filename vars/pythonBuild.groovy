@@ -77,9 +77,21 @@ def call(body){
                         imageTag = versionArray[3]
                     } 
 
-                     stage("SONAR : This will trigger next 4 stages"){
+                    stage("SONAR : This will trigger next 4 stages"){
                         sonarProps = sonarRunner(config.targetPom)
+                        sonarResult = sonarProps['sonarResult']
                     } 
+
+                    stage("Maven Results aggregation"){
+                        echo "Sonar Result: ${sonarResult}"
+
+                        if( sonarResult == "failure" ){
+                            throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
+                        }
+                        if( sonarResult == "aborted" ){
+                            throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
+                        }
+                    }
                 }
             }
         }
