@@ -102,6 +102,12 @@ void call(String targetPom){
                     sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
                 }
             }
+
+            stage("Sonar: Results"){
+                //Get the report task written by sonar with taskID
+                def props = readProperties file: 'target/sonar/report-task.txt'
+                sh "cat target/sonar/report-task.txt"
+            }
         }
         catch(Exception e){
             echo "Error: ${e}"
