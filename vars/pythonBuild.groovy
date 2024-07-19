@@ -82,8 +82,8 @@ def call(body){
                         sonarResult = sonarProps['sonarResult']
                     } 
 
-                    stage("Maven Results aggregation"){
-                        echo "Sonar Result: ${sonarResult}"
+                    stage("SONAR: Results aggregation"){
+                        echo "SONAR Result: ${sonarResult}"
 
                         if( sonarResult == "failure" ){
                             throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
@@ -91,6 +91,35 @@ def call(body){
                         if( sonarResult == "aborted" ){
                             throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
                         }
+                    }
+
+                    stage("Build Docker Image"){
+                        sh "id"
+                        sh "docker build -t ${imageTag} --file=${config.dockerFile} ."
+                    }
+
+                    stage("Publish docker image"){
+                        withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS', secretKeyVariable:'AWS_SECRET_ACCESS_KEY')]) {
+                            def AWS_DEFAULT_REGION = "us-west-2"
+                            sh """
+                                aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/j9k0i2s2
+                                docker push ${imageTag}
+                                docker rmi ${imageTag}
+                            """
+                        }
+                    }
+
+                    stage("Versioning - updating to new release"){
+                        sh """
+                            sed -i 's/$originalversion/$newPomVersion/g' pom.xml                     
+                        """
+                    }
+
+                    stage("Update repo"){
+                        sshagent(['GitHubSSH']){
+                            sh "git config --global user.email \"jenkins-docker@gmail.com\" && git config --global user.name \"jenkins-docker\" && \
+                                git commit -am '[JENKINS] Built version ${releaseVersion}' && git push"
+                        }    
                     }
                 }
             }
