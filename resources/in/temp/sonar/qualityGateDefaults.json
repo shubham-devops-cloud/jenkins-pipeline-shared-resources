@@ -15,6 +15,14 @@
                     "attendance" 
                 ]
             }
+        },
+        {
+            "qualityGateName": "Employee Quality Gate - Employee System",
+            "components": {
+                "servicename": [ 
+                    "employee" 
+                ]
+            }
         }
     ]
 }
