@@ -23,6 +23,14 @@
                     "employee" 
                 ]
             }
+        },
+        {
+            "qualityGateName": "Salary Quality Gate - Employee System",
+            "components": {
+                "servicename": [ 
+                    "salary" 
+                ]
+            }
         }
     ]
 }
