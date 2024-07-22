@@ -78,7 +78,7 @@ def call(body){
                     } 
 
                     stage("SONAR : This will trigger next 4 stages"){
-                        sonarProps = sonarRunner(config.targetPom)
+                        sonarProps = sonarRunner(config.targetPom, config.projectType)
                         sonarResult = sonarProps['sonarResult']
                     } 
 

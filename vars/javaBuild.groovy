@@ -7,6 +7,7 @@ def call(body){
     
     def branch = "${env.BRANCH_NAME}"
     def doBuild = true
+    def mavenHome = "/opt/maven/bin/mvn"
     //def originalversion, releaseVersion, newPomVersion, imageTag
     def registryName = 'public.ecr.aws/j9k0i2s2/dev-or-employee-system'
 
@@ -78,7 +79,7 @@ def call(body){
                     } 
 
                     stage("SONAR : This will trigger next 4 stages"){
-                        sonarProps = sonarRunner(config.targetPom)
+                        sonarProps = sonarRunner(config.targetPom, config.projectType)
                         sonarResult = sonarProps['sonarResult']
                     } 
 

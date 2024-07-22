@@ -1,9 +1,10 @@
 import groovy.json.JsonBuilder;
 import org.common.SonarQubeDetails
 
-void call(String targetPom){
+void call(String targetPom, string projectType){
     def sonarKey, sonarProps, sonarResult, sonarProjectName
     def sonarExtURL = "http://192.168.0.112:9000"
+    def mavenHome = "/opt/maven/bin/mvn"
 
     node("worker_docker_slave"){
         def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
@@ -99,13 +100,31 @@ void call(String targetPom){
         try{
             stage("Sonar: Analysis"){
                 withSonarQubeEnv('SonarQube'){
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
+                    if (projectType == "python" || projectType == "go"){
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
+                    }
+                    else if (projectType == "java"){
+                        sh "${mavenHome} clean verify sonar:sonar -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
+                    }
+                    else{
+                        println "projectType not updated in Jenkinsfile"
+                    }
                 }
             }
 
             stage("Sonar: Results"){
                 //Get the report task written by sonar with taskID
-                def props = readProperties file: '.scannerwork/report-task.txt'
+                if (projectType == "python" || projectType == "go"){
+                   def props = readProperties file: '.scannerwork/report-task.txt'
+                }
+                else if (projectType == "java"){
+                    def props = readProperties file: 'target/sonar/report-task.txt'
+                }
+                else{
+                    println "projectType not updated in Jenkinsfile"
+                }
+                
+                
                 sh "cat .scannerwork/report-task.txt"
                 def sonarServerUrl = props['serverUrl']
                 def ceTaskUrl = props['ceTaskUrl']
