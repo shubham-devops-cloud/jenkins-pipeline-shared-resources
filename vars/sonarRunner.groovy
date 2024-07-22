@@ -114,13 +114,14 @@ void call(String targetPom, String projectType){
 
             stage("Sonar: Results"){
                 sh "sleep 180"
+                def props
                 //Get the report task written by sonar with taskID
                 if (projectType == "python" || projectType == "go"){
-                    def props = readProperties file: '.scannerwork/report-task.txt'
+                    props = readProperties file: '.scannerwork/report-task.txt'
                     sh "cat .scannerwork/report-task.txt"
                 }
                 else if (projectType == "java"){
-                    def props = readProperties file: 'target/sonar/report-task.txt'
+                    props = readProperties file: 'target/sonar/report-task.txt'
                     sh "cat target/sonar/report-task.txt"
                 }
                 else{
