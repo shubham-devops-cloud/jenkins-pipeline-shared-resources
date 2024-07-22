@@ -1,7 +1,7 @@
 import groovy.json.JsonBuilder;
 import org.common.SonarQubeDetails
 
-void call(String targetPom, string projectType){
+void call(String targetPom, String projectType){
     def sonarKey, sonarProps, sonarResult, sonarProjectName
     def sonarExtURL = "http://192.168.0.112:9000"
     def mavenHome = "/opt/maven/bin/mvn"
