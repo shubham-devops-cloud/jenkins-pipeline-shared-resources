@@ -113,9 +113,10 @@ void call(String targetPom, string projectType){
             }
 
             stage("Sonar: Results"){
+                sh "sleep 180"
                 //Get the report task written by sonar with taskID
                 if (projectType == "python" || projectType == "go"){
-                   def props = readProperties file: '.scannerwork/report-task.txt'
+                    def props = readProperties file: '.scannerwork/report-task.txt'
                 }
                 else if (projectType == "java"){
                     def props = readProperties file: 'target/sonar/report-task.txt'
@@ -124,7 +125,7 @@ void call(String targetPom, string projectType){
                     println "projectType not updated in Jenkinsfile"
                 }
                 
-                
+
                 sh "cat .scannerwork/report-task.txt"
                 def sonarServerUrl = props['serverUrl']
                 def ceTaskUrl = props['ceTaskUrl']
