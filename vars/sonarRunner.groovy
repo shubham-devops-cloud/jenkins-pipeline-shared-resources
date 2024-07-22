@@ -117,16 +117,17 @@ void call(String targetPom, String projectType){
                 //Get the report task written by sonar with taskID
                 if (projectType == "python" || projectType == "go"){
                     def props = readProperties file: '.scannerwork/report-task.txt'
+                    sh "cat .scannerwork/report-task.txt"
                 }
                 else if (projectType == "java"){
                     def props = readProperties file: 'target/sonar/report-task.txt'
+                    sh "cat target/sonar/report-task.txt"
                 }
                 else{
                     println "projectType not updated in Jenkinsfile"
                 }
                 
 
-                sh "cat .scannerwork/report-task.txt"
                 def sonarServerUrl = props['serverUrl']
                 def ceTaskUrl = props['ceTaskUrl']
                 def ceTask
