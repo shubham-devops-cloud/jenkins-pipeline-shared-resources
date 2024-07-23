@@ -114,7 +114,6 @@ void call(String targetPom, String projectType){
             }
 
             stage("Sonar: Results"){
-                sh "sleep 180"
                 def props
                 //Get the report task written by sonar with taskID
                 if (projectType == "python" || projectType == "go"){
