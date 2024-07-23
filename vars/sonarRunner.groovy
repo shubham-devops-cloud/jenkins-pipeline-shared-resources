@@ -5,6 +5,7 @@ void call(String targetPom, String projectType){
     def sonarKey, sonarProps, sonarResult, sonarProjectName
     def sonarExtURL = "http://192.168.0.112:9000"
     def mavenHome = "/opt/maven/bin/mvn"
+    def mavenSettings = "${env.JENKINS_HOME}/settings.xml"
 
     node("worker_docker_slave"){
         def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
@@ -104,7 +105,7 @@ void call(String targetPom, String projectType){
                         sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
                     }
                     else if (projectType == "java"){
-                        sh "${mavenHome} clean verify sonar:sonar -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
+                        sh "${mavenHome} -gs ${mavenSettings} clean verify sonar:sonar -Dsonar.projectKey=${sonarKey} -Dsonar.projectName=${sonarProjectName}"
                     }
                     else{
                         println "projectType not updated in Jenkinsfile"
