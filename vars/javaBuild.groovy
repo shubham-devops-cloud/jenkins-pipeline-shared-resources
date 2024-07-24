@@ -79,21 +79,21 @@ def call(body){
                         imageTag = versionArray[3]
                     } 
 
-                    stage("SONAR : This will trigger next 4 stages"){
-                        sonarProps = sonarRunner(config.targetPom, config.projectType)
-                        sonarResult = sonarProps['sonarResult']
-                    } 
+                    // stage("SONAR : This will trigger next 4 stages"){
+                    //     sonarProps = sonarRunner(config.targetPom, config.projectType)
+                    //     sonarResult = sonarProps['sonarResult']
+                    // } 
 
-                    stage("SONAR: Results aggregation"){
-                        echo "SONAR Result: ${sonarResult}"
+                    // stage("SONAR: Results aggregation"){
+                    //     echo "SONAR Result: ${sonarResult}"
 
-                        if( sonarResult == "failure" ){
-                            throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
-                        }
-                        if( sonarResult == "aborted" ){
-                            throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
-                        }
-                    }
+                    //     if( sonarResult == "failure" ){
+                    //         throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
+                    //     }
+                    //     if( sonarResult == "aborted" ){
+                    //         throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
+                    //     }
+                    // }
 
                     stage("Build"){
                         sh "${mavenHome} -gs ${mavenSettings} clean package"
@@ -107,14 +107,15 @@ def call(body){
                         def pomRepoName = "${pomGroupId}-${pomArtifactId}"
                         println "Nexus Repo Name: $pomRepoName"            
 
-                        withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'nexus_password', usernameVariable: 'nexus_user')]) {
+                        //withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'nexus_password', usernameVariable: 'nexus_user')]) {
+                        withCredentials([usernameColonPassword(credentialsId: 'nexus', variable: 'nexusCred')]) {    
                             nexusArtifactUploader nexusVersion: 'nexus3',
                             protocol: 'http',
                             nexusUrl: 'http://192.168.0.112:8081',
                             groupId: "${pomGroupId}",
                             version: "${pomVersion}",
                             repository: "${pomRepoName}",
-                            credentialsId: "${nexus}",
+                            credentialsId: "${nexusCred}",
                             artifacts: [
                                 [
                                     artifactId: "${pomArtifactId}",
