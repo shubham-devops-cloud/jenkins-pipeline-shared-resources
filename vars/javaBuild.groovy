@@ -84,6 +84,7 @@ def call(body){
                     } 
 
                     stage("SONAR: Results aggregation"){
+                        sh "sleep 300"
                         echo "SONAR Result: ${sonarResult}"
 
                         if( sonarResult == "failure" ){
