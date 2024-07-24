@@ -95,9 +95,35 @@ def call(body){
                         }
                     }
 
-                    stage("build"){
+                    stage("Build"){
                         sh "${mavenHome} -gs ${mavenSettings} clean package"
-                        sh "sleep 240"
+                    }
+
+                    stage("Push artifacts to Nexus"){
+                        def pom = readMavenPom file: config.targetPom
+                        def pomGroupId = pom.groupId 
+                        def pomVersion = pom.version
+                        def pomArtifactId = pom.artifactId
+                        def pomRepoName = "${pomGroupId}-${pomArtifactId}"
+                        println "Nexus Repo Name: $pomRepoName"            
+
+                        withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'nexus_password', usernameVariable: 'nexus_user')]) {
+                            nexusArtifactUploader nexusVersion: 'nexus3',
+                            protocol: 'http',
+                            nexusUrl: 'http://192.168.0.112:8081',
+                            groupId: "${pomGroupId}",
+                            version: "${pomVersion}",
+                            repository: "${pomRepoName}",
+                            credentialsId: "${nexus}",
+                            artifacts: [
+                                [
+                                    artifactId: "${pomArtifactId}",
+                                    classifier: '',
+                                    file: "target/${pomArtifactId}.jar",
+                                    type: 'jar'
+                                ]
+                            ]
+                        }
                     }
                 }
             }
