@@ -8,6 +8,7 @@ def call(body){
     def branch = "${env.BRANCH_NAME}"
     def doBuild = true
     def mavenHome = "/opt/maven/bin/mvn"
+    def mavenSettings = "${env.JENKINS_HOME}/settings.xml"
     //def originalversion, releaseVersion, newPomVersion, imageTag
     def registryName = 'public.ecr.aws/j9k0i2s2/dev-or-employee-system'
 
@@ -92,6 +93,11 @@ def call(body){
                         if( sonarResult == "aborted" ){
                             throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
                         }
+                    }
+
+                    stage("build"){
+                        sh "${mavenHome} -gs ${mavenSettings} clean package"
+                        sh "sleep 240"
                     }
                 }
             }

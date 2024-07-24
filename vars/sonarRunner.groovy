@@ -152,7 +152,6 @@ void call(String targetPom, String projectType){
 
 
                     //Get analsis result from Sonar
-                    sh "sleep 300"
                     url = new URL(sonarServerUrl + "/api/qualitygates/project_status?analysisId=" + analysisId)
                     sh "curl -u ${sonarCred}: ${url} -o qualityGate.json"
                     def qgProps = readJSON file: "qualityGate.json"
