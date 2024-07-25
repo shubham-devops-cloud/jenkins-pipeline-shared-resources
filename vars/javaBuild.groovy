@@ -116,8 +116,8 @@ def call(body){
                             version: "${pomVersion}",
                             repository: "${pomRepoName}",
                             //credentialsId: "${nexusCred}",
-                            username: "${nexus_user}",
-                            password: "${nexus_password}",
+                            username: "admin",
+                            password: "admin",
                             artifacts: [
                                 [
                                     artifactId: "${pomArtifactId}",
