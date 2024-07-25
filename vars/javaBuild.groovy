@@ -106,25 +106,52 @@ def call(body){
                         def pomArtifactId = pom.artifactId
                         def pomRepoName = "${pomGroupId}-${pomArtifactId}"
                         println "Nexus Repo Name: $pomRepoName"            
-                        
-                        //withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'nexus_password', usernameVariable: 'nexus_user')]) {
-                        //withCredentials([usernameColonPassword(credentialsId: 'nexus', variable: 'nexus')]) {    
-                            nexusArtifactUploader nexusVersion: "nexus3",
-                            protocol: "http",
-                            nexusUrl: "192.168.0.112:8081",
-                            groupId: "${pomGroupId}",
-                            version: "${pomVersion}",
-                            repository: "${pomRepoName}",
-                            credentialsId: 'nexus',
-                            artifacts: [
-                                [
-                                    artifactId: "${pomArtifactId}",
-                                    classifier: '',
-                                    file: "target/${pomArtifactId}.jar",
-                                    type: 'jar'
-                                ]
+                          
+                        //Code to upload artifacts to Nexus repo
+                        nexusArtifactUploader nexusVersion: "nexus3",
+                        protocol: "http",
+                        nexusUrl: "192.168.0.112:8081",
+                        groupId: "${pomGroupId}",
+                        version: "${pomVersion}",
+                        repository: "${pomRepoName}",
+                        credentialsId: 'nexus',
+                        artifacts: [
+                            [
+                                artifactId: "${pomArtifactId}",
+                                classifier: '',
+                                file: "target/${pomArtifactId}.jar",
+                                type: 'jar'
                             ]
-                        //}
+                        ]
+                    }
+
+                    stage("Build Docker Image"){
+                        sh "id"
+                        sh "docker build -t ${imageTag} --file=${config.dockerFile} ."
+                    }
+
+                    stage("Publish docker image"){
+                        withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS', secretKeyVariable:'AWS_SECRET_ACCESS_KEY')]) {
+                            def AWS_DEFAULT_REGION = "us-west-2"
+                            sh """
+                                aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/j9k0i2s2
+                                docker push ${imageTag}
+                                docker rmi ${imageTag}
+                            """
+                        }
+                    }
+
+                    stage("Versioning - updating to new release"){
+                        sh """
+                            sed -i 's/$originalversion/$newPomVersion/g' pom.xml                     
+                        """
+                    }
+
+                    stage("Update repo"){
+                        sshagent(['GitHubSSH']){
+                            sh "git config --global user.email \"jenkins-docker@gmail.com\" && git config --global user.name \"jenkins-docker\" && \
+                                git commit -am '[JENKINS] Built version ${releaseVersion}' && git push"
+                        }    
                     }
                 }
             }
