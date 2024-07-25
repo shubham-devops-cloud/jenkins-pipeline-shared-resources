@@ -107,7 +107,7 @@ def call(body){
                         def pomRepoName = "${pomGroupId}-${pomArtifactId}"
                         println "Nexus Repo Name: $pomRepoName"            
                         
-                        //withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'nexus_password', usernameVariable: 'nexus_user')]) {
+                        withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'nexus_password', usernameVariable: 'nexus_user')]) {
                         //withCredentials([usernameColonPassword(credentialsId: 'nexus', variable: 'nexusCred')]) {    
                             nexusArtifactUploader nexusVersion: "nexus3",
                             protocol: "http",
@@ -116,8 +116,8 @@ def call(body){
                             version: "${pomVersion}",
                             repository: "${pomRepoName}",
                             //credentialsId: "${nexusCred}",
-                            username: "jenkins",
-                            password: "jenkins",
+                            username: "${nexus_user}",
+                            password: "${nexus_password}",
                             artifacts: [
                                 [
                                     artifactId: "${pomArtifactId}",
@@ -126,7 +126,7 @@ def call(body){
                                     type: 'jar'
                                 ]
                             ]
-                        //}
+                        }
                     }
                 }
             }
