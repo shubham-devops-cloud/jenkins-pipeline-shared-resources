@@ -79,21 +79,21 @@ def call(body){
                         imageTag = versionArray[3]
                     } 
 
-                    // stage("SONAR : This will trigger next 4 stages"){
-                    //     sonarProps = sonarRunner(config.targetPom, config.projectType)
-                    //     sonarResult = sonarProps['sonarResult']
-                    // } 
+                    stage("SONAR : This will trigger next 4 stages"){
+                        sonarProps = sonarRunner(config.targetPom, config.projectType)
+                        sonarResult = sonarProps['sonarResult']
+                    } 
 
-                    // stage("SONAR: Results aggregation"){
-                    //     echo "SONAR Result: ${sonarResult}"
+                    stage("SONAR: Results aggregation"){
+                        echo "SONAR Result: ${sonarResult}"
 
-                    //     if( sonarResult == "failure" ){
-                    //         throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
-                    //     }
-                    //     if( sonarResult == "aborted" ){
-                    //         throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
-                    //     }
-                    // }
+                        if( sonarResult == "failure" ){
+                            throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
+                        }
+                        if( sonarResult == "aborted" ){
+                            throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
+                        }
+                    }
 
                     stage("Build"){
                         sh "${mavenHome} -gs ${mavenSettings} clean package"
