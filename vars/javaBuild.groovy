@@ -79,51 +79,51 @@ def call(body){
                         imageTag = versionArray[3]
                     } 
 
-                    // stage("SONAR : This will trigger next 4 stages"){
-                    //     sonarProps = sonarRunner(config.targetPom, config.projectType)
-                    //     sonarResult = sonarProps['sonarResult']
-                    // } 
+                    stage("SONAR : This will trigger next 4 stages"){
+                        sonarProps = sonarRunner(config.targetPom, config.projectType)
+                        sonarResult = sonarProps['sonarResult']
+                    } 
 
-                    // stage("SONAR: Results aggregation"){
-                    //     echo "SONAR Result: ${sonarResult}"
+                    stage("SONAR: Results aggregation"){
+                        echo "SONAR Result: ${sonarResult}"
 
-                    //     if( sonarResult == "failure" ){
-                    //         throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
-                    //     }
-                    //     if( sonarResult == "aborted" ){
-                    //         throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
-                    //     }
-                    // }
+                        if( sonarResult == "failure" ){
+                            throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
+                        }
+                        if( sonarResult == "aborted" ){
+                            throw new RuntimeException("Sonarqube check has failed, something went wrong during the report")
+                        }
+                    }
 
                     stage("Build"){
                         sh "${mavenHome} -gs ${mavenSettings} clean package"
                     }
 
-                    // stage("Push artifacts to Nexus"){
-                    //     def pom = readMavenPom file: config.targetPom
-                    //     def pomGroupId = pom.groupId 
-                    //     def pomVersion = pom.version
-                    //     def pomArtifactId = pom.artifactId
-                    //     def pomRepoName = "${pomGroupId}-${pomArtifactId}"
-                    //     println "Nexus Repo Name: $pomRepoName"            
+                    stage("Push artifacts to Nexus"){
+                        def pom = readMavenPom file: config.targetPom
+                        def pomGroupId = pom.groupId 
+                        def pomVersion = pom.version
+                        def pomArtifactId = pom.artifactId
+                        def pomRepoName = "${pomGroupId}-${pomArtifactId}"
+                        println "Nexus Repo Name: $pomRepoName"            
                           
-                    //     //Code to upload artifacts to Nexus repo
-                    //     nexusArtifactUploader nexusVersion: "nexus3",
-                    //     protocol: "http",
-                    //     nexusUrl: "192.168.0.112:8081",
-                    //     groupId: "${pomGroupId}",
-                    //     version: "${pomVersion}",
-                    //     repository: "${pomRepoName}",
-                    //     credentialsId: 'nexus',
-                    //     artifacts: [
-                    //         [
-                    //             artifactId: "${pomArtifactId}",
-                    //             classifier: '',
-                    //             file: "target/${pomArtifactId}.jar",
-                    //             type: 'jar'
-                    //         ]
-                    //     ]
-                    // }
+                        //Code to upload artifacts to Nexus repo
+                        nexusArtifactUploader nexusVersion: "nexus3",
+                        protocol: "http",
+                        nexusUrl: "192.168.0.112:8081",
+                        groupId: "${pomGroupId}",
+                        version: "${pomVersion}",
+                        repository: "${pomRepoName}",
+                        credentialsId: 'nexus',
+                        artifacts: [
+                            [
+                                artifactId: "${pomArtifactId}",
+                                classifier: '',
+                                file: "target/${pomArtifactId}.jar",
+                                type: 'jar'
+                            ]
+                        ]
+                    }
 
                     stage("Build Docker Image"){
                         sh "id"
@@ -141,18 +141,18 @@ def call(body){
                         }
                     }
 
-                    // stage("Versioning - updating to new release"){
-                    //     sh """
-                    //         sed -i 's/$originalversion/$newPomVersion/g' pom.xml                     
-                    //     """
-                    // }
+                    stage("Versioning - updating to new release"){
+                        sh """
+                            sed -i 's/$originalversion/$newPomVersion/g' pom.xml                     
+                        """
+                    }
 
-                    // stage("Update repo"){
-                    //     sshagent(['GitHubSSH']){
-                    //         sh "git config --global user.email \"jenkins-docker@gmail.com\" && git config --global user.name \"jenkins-docker\" && \
-                    //             git commit -am '[JENKINS] Built version ${releaseVersion}' && git push"
-                    //     }    
-                    // }
+                    stage("Update repo"){
+                        sshagent(['GitHubSSH']){
+                            sh "git config --global user.email \"jenkins-docker@gmail.com\" && git config --global user.name \"jenkins-docker\" && \
+                                git commit -am '[JENKINS] Built version ${releaseVersion}' && git push"
+                        }    
+                    }
                 }
             }
         }
