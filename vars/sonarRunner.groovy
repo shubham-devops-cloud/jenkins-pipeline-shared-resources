@@ -141,7 +141,7 @@ void call(String targetPom, String projectType){
                     def attemptCounter = 0
 
                     while(analysisId == null && attemptCounter < 30){
-                        sleep 5
+                        sleep 10
                         sh "curl -u ${sonarCred}: ${url} -o ceTask.json"
                         def ceProps = readJSON file: "ceTask.json"
                         sh "cat ceTask.json"
