@@ -68,7 +68,7 @@ def call(body){
 
                     //call versioning and work on next maven version
                     stage("Get Version Details"){
-                        def versionArray = versioning(ecrTagName, config.targetJson, branch)
+                        def versionArray = versioningJson(ecrTagName, config.targetJson, branch)
                         
                         originalversion = versionArray[0]
                         releaseVersion = versionArray[1]
