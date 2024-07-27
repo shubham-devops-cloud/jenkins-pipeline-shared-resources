@@ -4,7 +4,7 @@ void call(String ecrTagName, String targetJson, String branch){
     def registryPath = "public.ecr.aws/j9k0i2s2/dev-or-employee-system"
     println "${targetJson}"
     sh "ls -la"
-    def json = readJson file: "${targetJson}"
+    def json = readJSON file: targetJson
     def originalversion = json.version
     
     def releaseVersion = "${originalversion}"
