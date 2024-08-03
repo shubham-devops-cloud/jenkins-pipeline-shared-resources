@@ -3,7 +3,7 @@ def call(body){
     def repoName = REPONAME
     def featureimage = FEATUREIMAGE
     def envconfigTag = NAMESPACE
-    def dockerImagePath = "charts/docker.app.yaml"
+    def dockerImagePath = "values.yaml"
 
     node("worker_docker_slave"){
         properties([
@@ -36,19 +36,25 @@ def call(body){
                     throw new RuntimeException("featureimage not passed while running build so failing this build")
                 }
 
-                sh "cat charts/docker.app.yaml"
+                sh "cat values.yaml"
                 sh "sed -i '/DOCKER_APP_IMAGE:/c DOCKER_APP_IMAGE: $featureimage' $dockerImagePath"
-                sh "cat charts/docker.app.yaml"
+                sh "cat values.yaml"
             }
 
             stage('Chart Linting'){
-                //withCredentials([kubeconfigContent(credentialsId: 'KUBE-CONFIG', variable: 'KUBECONFIG_CONTENT')]) {
-                    dir("charts"){
-                        sh "pwd"
-                        sh "helm lint ."        
-                    }
-                //}
+                dir("charts"){
+                    sh "pwd"
+                    sh "helm lint ."        
+                }
             }
+
+            // stage('Deploying application on k8s'){
+            //     withCredentials([kubeconfigContent(credentialsId: 'KUBE-CONFIG', variable: 'KUBECONFIG_CONTENT')]) {
+            //         dir("charts"){
+            //             sh "helm upgrade --install --namespace ${envcongTag} example --debug --timeout 900s --wait" 
+            //         }
+            //     }
+            // }
         }
     }
 }
