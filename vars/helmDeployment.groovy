@@ -32,7 +32,7 @@ def call(body){
             stage("Intialise workspace"){
                 println "$repoName $featureimage $envconfigTag"
 
-                if (featureimage == null){
+                if (featureimage?.trim()?.isEmpty()){
                     println "featureimage not passed while running build so failing this build"
                     throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
                 }
