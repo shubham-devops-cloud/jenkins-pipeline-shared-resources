@@ -3,7 +3,7 @@ def call(body){
     def repoName = REPONAME
     def featureimage = FEATUREIMAGE
     def envconfigTag = NAMESPACE
-    def dockerImagePath = "values.yaml"
+    def dockerImagePath = "charts/values.yaml"
 
     node("worker_docker_slave"){
         properties([
@@ -36,9 +36,9 @@ def call(body){
                     throw new RuntimeException("featureimage not passed while running build so failing this build")
                 }
 
-                sh "cat values.yaml"
+                sh "cat charts/values.yaml"
                 sh "sed -i '/DOCKER_APP_IMAGE:/c DOCKER_APP_IMAGE: $featureimage' $dockerImagePath"
-                sh "cat values.yaml"
+                sh "cat charts/values.yaml"
             }
 
             stage('Chart Linting'){
