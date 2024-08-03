@@ -44,6 +44,7 @@ def call(body){
             stage('Chart Linting'){
                 //withCredentials([kubeconfigContent(credentialsId: 'KUBE-CONFIG', variable: 'KUBECONFIG_CONTENT')]) {
                     dir("charts"){
+                        sh "pwd"
                         sh "helm lint ."        
                     }
                 //}
