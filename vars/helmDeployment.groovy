@@ -33,8 +33,7 @@ def call(body){
                 println "$repoName $featureimage $envconfigTag"
 
                 if (featureimage?.trim()?.isEmpty()){
-                    println "featureimage not passed while running build so failing this build"
-                    throw new RuntimeException("Sonarqube check has failed, this component is under threshold")
+                    throw new RuntimeException("featureimage not passed while running build so failing this build")
                 }
 
                 sh "cat charts/docker.app.yaml"
