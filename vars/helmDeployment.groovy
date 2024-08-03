@@ -33,7 +33,7 @@ def call(body){
                 sh """
                     ls -la
                     cat charts/docker.app.yaml
-                    helm --version
+                    helm version
                     kubectl version --client
                 """
             }
