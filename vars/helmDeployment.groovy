@@ -40,6 +40,14 @@ def call(body){
                 sh "sed -i '/DOCKER_APP_IMAGE:/c DOCKER_APP_IMAGE: $featureimage' $dockerImagePath"
                 sh "cat charts/docker.app.yaml"
             }
+
+            stage('Chart Linting'){
+                //withCredentials([kubeconfigContent(credentialsId: 'KUBE-CONFIG', variable: 'KUBECONFIG_CONTENT')]) {
+                    dir("charts"){
+                        sh "helm lint ."        
+                    }
+                //}
+            }
         }
     }
 }
