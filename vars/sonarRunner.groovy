@@ -3,7 +3,7 @@ import org.common.SonarQubeDetails
 
 void call(String targetPom, String projectType){
     def sonarKey, sonarProps, sonarResult, sonarProjectName
-    def sonarExtURL = "http://192.168.0.112:9000"
+    def sonarExtURL = "http://192.168.0.113:9000"
     def mavenHome = "/opt/maven/bin/mvn"
     def mavenSettings = "${env.JENKINS_HOME}/settings.xml"
 

@@ -110,7 +110,7 @@ def call(body){
                         //Code to upload artifacts to Nexus repo
                         nexusArtifactUploader nexusVersion: "nexus3",
                         protocol: "http",
-                        nexusUrl: "192.168.0.112:8081",
+                        nexusUrl: "192.168.0.113:8081",
                         groupId: "${pomGroupId}",
                         version: "${pomVersion}",
                         repository: "${pomRepoName}",
